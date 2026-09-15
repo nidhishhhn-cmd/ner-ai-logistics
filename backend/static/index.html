@@ -1,0 +1,3382 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NER Logistics Intelligence Platform | MDoNER</title>
+  <meta name="description"
+    content="AI-powered logistics intelligence for India's North Eastern Region — Ministry of Development of North Eastern Region" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #0f1629;
+      --bg-card: #151d35;
+      --bg-card-hover: #1c2642;
+      --border: #1e2d4a;
+      --border-light: #263552;
+      --text-primary: #e8eef7;
+      --text-secondary: #8fa3c8;
+      --text-muted: #4d6080;
+      --accent-blue: #3b82f6;
+      --accent-blue-light: #60a5fa;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-yellow: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --accent-orange: #f97316;
+      --gradient-primary: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%);
+      --gradient-card: linear-gradient(135deg, #151d35 0%, #1a2440 100%);
+      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 30px rgba(59, 130, 246, 0.15);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --sidebar-w: 240px;
+      --topbar-h: 64px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      overflow-x: hidden;
+    }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-light);
+      border-radius: 3px;
+    }
+
+    /* BUTTON SYSTEM */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-card-hover);
+    }
+
+    .btn-success {
+      background: var(--accent-green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: var(--accent-red);
+      color: white;
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--accent-blue);
+      border: 1px solid var(--accent-blue);
+    }
+
+    .btn-outline:hover {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .btn-lg {
+      padding: 14px 28px;
+      font-size: 16px;
+      border-radius: var(--radius);
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 12px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-critical {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .badge-high {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-yellow);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-medium {
+      background: rgba(6, 182, 212, 0.15);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+
+    .badge-low {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-info {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-recommended {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue-light);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .badge-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-limited {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-yellow);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-light);
+    }
+
+    .card-glow:hover {
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* FORM ELEMENTS */
+    select,
+    input[type=text],
+    input[type=email],
+    input[type=password],
+    input[type=number],
+    textarea {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent-blue);
+    }
+
+    select option {
+      background: var(--bg-secondary);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    /* PROGRESS */
+    .progress-bar {
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s;
+    }
+
+    /* GAUGE */
+    .gauge-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .gauge-text {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-top: -20px;
+    }
+
+    .gauge-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* LAYOUT */
+    #app {
+      min-height: 100vh;
+    }
+
+    /* AUTH PAGES */
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-primary);
+    }
+
+    .auth-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .auth-logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-logo img {
+      width: 60px;
+      height: 60px;
+    }
+
+    .auth-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .auth-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 28px;
+    }
+
+    .auth-demo-badge {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--accent-green);
+      margin-bottom: 16px;
+    }
+
+    /* LANDING PAGE */
+    .landing {
+      background: var(--bg-primary);
+    }
+
+    .landing-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      background: rgba(10, 14, 26, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .landing-hero {
+      padding: 80px 40px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 0%, rgba(30, 58, 138, 0.4) 0%, transparent 60%);
+    }
+
+    .landing-hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 800px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #e8eef7 30%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .landing-hero p {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    .landing-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 36px;
+      flex-wrap: wrap;
+    }
+
+    .landing-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 60px auto;
+      padding: 0 40px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--accent-blue);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 6px;
+    }
+
+    .landing-features {
+      padding: 60px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .landing-features h2 {
+      font-size: 32px;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: rgba(59, 130, 246, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .landing-footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 40px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* DASHBOARD LAYOUT */
+    .dashboard-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 200;
+      transition: transform 0.3s;
+    }
+
+    .sidebar-logo {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-logo-text {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .sidebar-logo-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .nav-section {
+      padding: 16px 0;
+    }
+
+    .nav-section-label {
+      padding: 4px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .nav-item.active {
+      color: var(--accent-blue-light);
+      background: rgba(59, 130, 246, 0.1);
+      border-left-color: var(--accent-blue);
+    }
+
+    .nav-item svg {
+      flex-shrink: 0;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      height: var(--topbar-h);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-search {
+      flex: 1;
+      max-width: 400px;
+      position: relative;
+    }
+
+    .topbar-search input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      padding-left: 38px;
+    }
+
+    .topbar-search .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .search-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .search-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-item:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .search-item-name {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .search-item-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      border: 2px solid var(--bg-secondary);
+    }
+
+    .system-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--accent-green);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    /* MAIN CONTENT */
+    .main-content {
+      margin-left: var(--sidebar-w);
+      padding-top: var(--topbar-h);
+      min-height: 100vh;
+      width: calc(100vw - var(--sidebar-w));
+      max-width: calc(100vw - var(--sidebar-w));
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+
+    .page-content {
+      padding: 24px;
+      width: 100%;
+    }
+
+    .page-header {
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .kpi-change {
+      font-size: 11px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-up {
+      color: var(--accent-green);
+    }
+
+    .kpi-down {
+      color: var(--accent-red);
+    }
+
+    /* ROUTE PLANNER */
+    .route-layout {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 20px;
+      height: calc(100vh - var(--topbar-h) - 80px);
+      min-height: 600px;
+      width: 100%;
+    }
+
+    .route-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+      min-width: 0;
+    }
+
+    .route-form {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .route-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .route-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .route-card:hover {
+      border-color: var(--accent-blue);
+    }
+
+    .route-card.selected {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .route-card.recommended {
+      border-color: var(--accent-green);
+    }
+
+    .route-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .route-name {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .route-score {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent-blue);
+    }
+
+    .route-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .metric-item {
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .metric-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .map-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #main-map {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 500px;
+      flex: 1;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(15, 22, 41, 0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      z-index: 1000;
+      font-size: 11px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 3px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* AI EXPLANATION */
+    .ai-explanation {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 4px;
+    }
+
+    .ai-explanation-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-explanation-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .weight-bars {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .weight-bar {
+      text-align: center;
+    }
+
+    .weight-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .weight-fill {
+      border-radius: 4px 4px 0 0;
+      transition: height 0.5s;
+    }
+
+    .weight-pct {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-blue-light);
+      margin-top: 4px;
+    }
+
+    /* MAP */
+    .leaflet-popup-content-wrapper {
+      background: var(--bg-card) !important;
+      color: var(--text-primary) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius-sm) !important;
+    }
+
+    .leaflet-popup-tip {
+      background: var(--bg-card) !important;
+    }
+
+    .leaflet-popup-content {
+      font-family: 'Inter', sans-serif !important;
+      font-size: 13px !important;
+    }
+
+    .popup-title {
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .popup-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 2px 0;
+    }
+
+    /* HUBS PAGE */
+    .hubs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .hub-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .hub-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-2px);
+    }
+
+    .hub-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .hub-name {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .hub-location {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .connectivity-bars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .conn-item label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .conn-value {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 24px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .modal-body {
+      padding: 20px 24px 24px;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    /* ALERTS PAGE */
+    .alerts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: border-color 0.2s;
+    }
+
+    .alert-item.severity-critical {
+      border-left: 4px solid var(--accent-red);
+    }
+
+    .alert-item.severity-high {
+      border-left: 4px solid var(--accent-yellow);
+    }
+
+    .alert-item.severity-medium {
+      border-left: 4px solid var(--accent-cyan);
+    }
+
+    .alert-item.severity-low {
+      border-left: 4px solid var(--accent-green);
+    }
+
+    .alert-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .alert-title {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .alert-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .alert-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 12px;
+      line-height: 1.6;
+    }
+
+    .alert-action {
+      margin-top: 10px;
+      background: rgba(59, 130, 246, 0.08);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-size: 12px;
+      color: var(--accent-blue-light);
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .filter-btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue-light);
+    }
+
+    /* ANALYTICS */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .chart-area {
+      width: 100%;
+      height: 220px;
+      position: relative;
+    }
+
+    /* INSIGHTS */
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .insight-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .insight-card.severity-critical {
+      border-top: 3px solid var(--accent-red);
+    }
+
+    .insight-card.severity-warning {
+      border-top: 3px solid var(--accent-yellow);
+    }
+
+    .insight-card.severity-info {
+      border-top: 3px solid var(--accent-blue);
+    }
+
+    .insight-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .insight-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .insight-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    /* SETTINGS */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+    }
+
+    .settings-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .settings-nav-item {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .settings-nav-item:hover,
+    .settings-nav-item.active {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue-light);
+    }
+
+    .settings-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .settings-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .settings-row:last-child {
+      border-bottom: none;
+    }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .toggle.on {
+      background: var(--accent-blue);
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+
+    .toggle.on::after {
+      transform: translateX(20px);
+    }
+
+    /* ACCESSIBILITY MAP */
+    .accessibility-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    .state-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .state-bar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .state-name {
+      width: 120px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .state-bar-outer {
+      flex: 1;
+      background: var(--bg-secondary);
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+    }
+
+    .state-bar-inner {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.8s;
+    }
+
+    .state-score {
+      width: 40px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    /* LOADING / ERROR */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      text-align: center;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    /* DEMO BANNER */
+    .demo-banner {
+      background: rgba(245, 158, 11, 0.1);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 8px 24px;
+      font-size: 12px;
+      color: var(--accent-yellow);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* RESPONSIVE */
+    .hamburger {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .route-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .analytics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .insights-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .landing-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .landing-hero h1 {
+        font-size: 32px;
+      }
+
+      .settings-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .accessibility-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hubs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 150;
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* Data source badge */
+    .data-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: var(--accent-yellow);
+      margin-left: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <!-- Loading state while app initializes -->
+    <div id="init-loading"
+      style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;">
+      <div class="spinner"></div>
+      <div style="color:var(--text-secondary);font-size:14px;">Loading NER Logistics Platform...</div>
+    </div>
+  </div>
+
+  <!-- React and dependencies via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <!-- Recharts via CDN -->
+  <script src="https://unpkg.com/recharts@2.10.1/umd/Recharts.js"></script>
+
+  <script>
+    // ============================================================
+    // NER LOGISTICS INTELLIGENCE PLATFORM - FRONTEND APPLICATION
+    // ============================================================
+    const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
+
+    const API_BASE = 'http://localhost:8000';
+
+    // ============================================================
+    // API SERVICE
+    // ============================================================
+    const api = {
+      token: null,
+
+      setToken(t) { this.token = t; if (t) localStorage.setItem('ner_token', t); else localStorage.removeItem('ner_token'); },
+      loadToken() { this.token = localStorage.getItem('ner_token'); },
+
+      async request(path, opts = {}) {
+        const headers = { 'Content-Type': 'application/json', ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}) };
+        const res = await fetch(API_BASE + path, { ...opts, headers: { ...headers, ...opts.headers } });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ detail: 'Request failed' }));
+          throw new Error(err.detail || 'Request failed');
+        }
+        return res.json();
+      },
+
+      login: (email, password) => api.request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
+      register: (email, full_name, password) => api.request('/api/auth/register', { method: 'POST', body: JSON.stringify({ email, full_name, password }) }),
+      getMe: () => api.request('/api/auth/me'),
+      updateMe: (data) => api.request('/api/auth/me', { method: 'PUT', body: JSON.stringify(data) }),
+
+      getStates: () => api.request('/api/states'),
+      getCities: (params = {}) => api.request('/api/cities?' + new URLSearchParams(params)),
+
+      getRoutes: (params = {}) => api.request('/api/routes?' + new URLSearchParams(params)),
+      optimizeRoute: (data) => api.request('/api/routes/optimize', { method: 'POST', body: JSON.stringify(data) }),
+
+      getHubs: (params = {}) => api.request('/api/hubs?' + new URLSearchParams(params)),
+      getHub: (id) => api.request(`/api/hubs/${id}`),
+
+      getAlerts: (params = {}) => api.request('/api/alerts?' + new URLSearchParams(params)),
+
+      getAnalytics: (params = {}) => api.request('/api/analytics/accessibility?' + new URLSearchParams(params)),
+      getRouteAnalytics: () => api.request('/api/analytics/routes'),
+
+      getInsights: () => api.request('/api/insights'),
+      getKPIs: () => api.request('/api/dashboard/kpis'),
+
+      search: (q) => api.request('/api/search?q=' + encodeURIComponent(q)),
+      submitFeedback: (data) => api.request('/api/feedback', { method: 'POST', body: JSON.stringify(data) }),
+    };
+    api.loadToken();
+
+    // ============================================================
+    // AUTH CONTEXT
+    // ============================================================
+    const AuthContext = createContext(null);
+
+    function AuthProvider({ children }) {
+      const [user, setUser] = useState(null);
+      const [loading, setLoading] = useState(true);
+
+      useEffect(() => {
+        if (api.token) {
+          api.getMe().then(u => { setUser(u); setLoading(false); }).catch(() => { api.setToken(null); setLoading(false); });
+        } else { setLoading(false); }
+      }, []);
+
+      const login = async (email, password) => {
+        const res = await api.login(email, password);
+        api.setToken(res.access_token);
+        const u = await api.getMe();
+        setUser(u);
+        return u;
+      };
+
+      const logout = () => { api.setToken(null); setUser(null); };
+
+      return React.createElement(AuthContext.Provider, { value: { user, setUser, login, logout, loading } }, children);
+    }
+
+    const useAuth = () => useContext(AuthContext);
+
+    // ============================================================
+    // NAVIGATION CONTEXT
+    // ============================================================
+    const NavContext = createContext(null);
+
+    function NavProvider({ children }) {
+      const [page, setPage] = useState('landing');
+      const [sidebarOpen, setSidebarOpen] = useState(false);
+
+      const navigate = (p) => { setPage(p); setSidebarOpen(false); window.scrollTo(0, 0); };
+
+      return React.createElement(NavContext.Provider, { value: { page, navigate, sidebarOpen, setSidebarOpen } }, children);
+    }
+
+    const useNav = () => useContext(NavContext);
+
+    // ============================================================
+    // UTILITY COMPONENTS
+    // ============================================================
+    function Spinner({ size = 40 }) {
+      return React.createElement('div', { style: { display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '60px' } },
+        React.createElement('div', { className: 'spinner', style: { width: size, height: size } })
+      );
+    }
+
+    function ErrorState({ message, onRetry }) {
+      return React.createElement('div', { className: 'error-state' },
+        React.createElement('div', { style: { color: 'var(--accent-red)', fontSize: 32 } }, '⚠'),
+        React.createElement('div', { style: { fontWeight: 600 } }, 'Something went wrong'),
+        React.createElement('div', { style: { color: 'var(--text-secondary)', fontSize: 14 } }, message || 'Failed to load data'),
+        onRetry && React.createElement('button', { className: 'btn btn-secondary btn-sm', onClick: onRetry, style: { marginTop: 8 } }, 'Retry')
+      );
+    }
+
+    function EmptyState({ message }) {
+      return React.createElement('div', { className: 'empty-state' },
+        React.createElement('div', { style: { fontSize: 40, marginBottom: 8 } }, '📭'),
+        React.createElement('div', { style: { fontWeight: 600 } }, 'No data found'),
+        React.createElement('div', { style: { fontSize: 13 } }, message || 'Try adjusting your search or filters')
+      );
+    }
+
+    function Badge({ label, type }) {
+      return React.createElement('span', { className: `badge badge-${type}` }, label);
+    }
+
+    function ProgressBar({ value, color = 'var(--accent-blue)', height = 8 }) {
+      return React.createElement('div', { className: 'progress-bar', style: { height } },
+        React.createElement('div', { className: 'progress-fill', style: { width: `${Math.min(100, Math.max(0, value))}%`, background: color } })
+      );
+    }
+
+    // ============================================================
+    // LANDING PAGE
+    // ============================================================
+    function LandingPage() {
+      const { navigate } = useNav();
+
+      const features = [
+        { icon: '🗺️', title: 'AI Route Optimization', desc: 'Weighted multi-criteria scoring engine recommends optimal routes considering accessibility, risk, cost, and disruptions.' },
+        { icon: '🌐', title: 'Interactive Map Intelligence', desc: 'Real-time Leaflet maps show routes, logistics hubs, airports, railways, and active alert zones across all 8 NE states.' },
+        { icon: '⚡', title: 'Smart Accessibility Scoring', desc: 'Dynamic 0-100 scores for each state and route based on terrain, road quality, connectivity, and weather.' },
+        { icon: '🚨', title: 'Live Alert System', desc: 'Flood, landslide, road closure, and border checkpoint alerts with severity classification and route impact.' },
+        { icon: '📊', title: 'Analytics Dashboard', desc: 'Recharts-powered visualizations for state accessibility, delivery times, risk distribution, and monthly trends.' },
+        { icon: '🤖', title: 'AI Insights Engine', desc: 'Deterministic analytics generate actionable insights from live data — no fake outputs, all data-driven.' },
+      ];
+
+      const stats = [
+        { number: '8', label: 'NE States Covered' },
+        { number: '17+', label: 'Cities Mapped' },
+        { number: '16+', label: 'Routes Analysed' },
+        { number: '8', label: 'Logistics Hubs' },
+      ];
+
+      return React.createElement('div', { className: 'landing' },
+        React.createElement('nav', { className: 'landing-nav' },
+          React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12 } },
+            React.createElement('div', { style: { width: 40, height: 40, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 } }, '🏔'),
+            React.createElement('div', null,
+              React.createElement('div', { style: { fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' } }, 'NER Logistics Intelligence'),
+              React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)' } }, 'Ministry of Development of North Eastern Region')
+            )
+          ),
+          React.createElement('div', { style: { display: 'flex', gap: 12 } },
+            React.createElement('button', { className: 'btn btn-secondary btn-sm', onClick: () => navigate('login') }, 'Sign In'),
+            React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => navigate('dashboard') }, 'Open Dashboard')
+          )
+        ),
+
+        React.createElement('div', { className: 'landing-hero' },
+          React.createElement('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: 20, padding: '6px 16px', fontSize: 12, color: 'var(--accent-blue)', marginBottom: 24 } },
+            '🏛️ MDoNER Hackathon 2024 • AI-Powered Infrastructure'
+          ),
+          React.createElement('h1', null, 'AI-Based Smart Logistics & Accessibility Intelligence for North Eastern India'),
+          React.createElement('p', null, 'A unified platform for route optimization, accessibility analytics, disruption management, and logistics intelligence across all 8 North Eastern states.'),
+          React.createElement('div', { className: 'landing-btns' },
+            React.createElement('button', { className: 'btn btn-primary btn-lg', onClick: () => navigate('routes'), id: 'explore-routes-btn' }, '🗺️ Explore Routes'),
+            React.createElement('button', { className: 'btn btn-secondary btn-lg', onClick: () => navigate('dashboard'), id: 'open-dashboard-btn' }, '📊 Open Dashboard')
+          )
+        ),
+
+        React.createElement('div', { className: 'landing-stats' },
+          stats.map((s, i) => React.createElement('div', { key: i, className: 'stat-card' },
+            React.createElement('div', { className: 'stat-number' }, s.number),
+            React.createElement('div', { className: 'stat-label' }, s.label)
+          ))
+        ),
+
+        React.createElement('div', { className: 'landing-features' },
+          React.createElement('h2', null, 'Platform Capabilities'),
+          React.createElement('div', { className: 'features-grid' },
+            features.map((f, i) => React.createElement('div', { key: i, className: 'feature-card' },
+              React.createElement('div', { className: 'feature-icon', style: { fontSize: 22 } }, f.icon),
+              React.createElement('h3', null, f.title),
+              React.createElement('p', null, f.desc)
+            ))
+          )
+        ),
+
+        React.createElement('div', { className: 'landing-footer' },
+          React.createElement('p', null, '© 2024 NER Logistics Intelligence Platform | Ministry of Development of North Eastern Region (MDoNER)'),
+          React.createElement('p', { style: { marginTop: 8, color: 'var(--text-muted)', fontSize: 11 } }, 'Demo data — Simulated NER logistics data for hackathon demonstration purposes')
+        )
+      );
+    }
+
+    // ============================================================
+    // AUTH PAGES
+    // ============================================================
+    function LoginPage() {
+      const { login } = useAuth();
+      const { navigate } = useNav();
+      const [email, setEmail] = useState('admin@nerlogistics.demo');
+      const [password, setPassword] = useState('Demo@123');
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState('');
+
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setLoading(true); setError('');
+        try {
+          await login(email, password);
+          navigate('dashboard');
+        } catch (err) { setError(err.message); }
+        finally { setLoading(false); }
+      };
+
+      return React.createElement('div', { className: 'auth-page' },
+        React.createElement('div', { className: 'auth-card' },
+          React.createElement('div', { className: 'auth-logo' },
+            React.createElement('div', { style: { width: 64, height: 64, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' } }, '🏔'),
+            React.createElement('div', { className: 'auth-title' }, 'NER Logistics Platform'),
+            React.createElement('div', { className: 'auth-subtitle' }, 'Ministry of Development of North Eastern Region')
+          ),
+          React.createElement('div', { className: 'auth-demo-badge' },
+            '🔑 Demo credentials pre-filled • email: admin@nerlogistics.demo • password: Demo@123'
+          ),
+          error && React.createElement('div', { style: { background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--accent-red)', marginBottom: 16 } }, error),
+          React.createElement('form', { className: 'auth-form', onSubmit: handleLogin },
+            React.createElement('div', { className: 'form-group' },
+              React.createElement('label', null, 'Email Address'),
+              React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), required: true, id: 'login-email' })
+            ),
+            React.createElement('div', { className: 'form-group' },
+              React.createElement('label', null, 'Password'),
+              React.createElement('input', { type: 'password', value: password, onChange: e => setPassword(e.target.value), required: true, id: 'login-password' })
+            ),
+            React.createElement('button', { type: 'submit', className: 'btn btn-primary', disabled: loading, style: { width: '100%', justifyContent: 'center' }, id: 'login-submit-btn' },
+              loading ? 'Signing in...' : 'Sign In to Dashboard'
+            ),
+            React.createElement('div', { style: { textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' } },
+              "Don't have an account? ",
+              React.createElement('span', { style: { color: 'var(--accent-blue)', cursor: 'pointer' }, onClick: () => navigate('register') }, 'Register')
+            )
+          ),
+          React.createElement('div', { style: { textAlign: 'center', marginTop: 16, fontSize: 12, color: 'var(--text-muted)', cursor: 'pointer' }, onClick: () => navigate('landing') }, '← Back to Home')
+        )
+      );
+    }
+
+    function RegisterPage() {
+      const { navigate } = useNav();
+      const [email, setEmail] = useState('');
+      const [name, setName] = useState('');
+      const [password, setPassword] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState('');
+      const [success, setSuccess] = useState(false);
+
+      const handleRegister = async (e) => {
+        e.preventDefault();
+        setLoading(true); setError('');
+        try {
+          await api.register(email, name, password);
+          setSuccess(true);
+          setTimeout(() => navigate('login'), 2000);
+        } catch (err) { setError(err.message); }
+        finally { setLoading(false); }
+      };
+
+      return React.createElement('div', { className: 'auth-page' },
+        React.createElement('div', { className: 'auth-card' },
+          React.createElement('div', { className: 'auth-title' }, 'Create Account'),
+          React.createElement('div', { className: 'auth-subtitle' }, 'Join the NER Logistics Platform'),
+          success
+            ? React.createElement('div', { style: { textAlign: 'center', padding: '40px 0', color: 'var(--accent-green)' } }, 'Account created! Redirecting to login...')
+            : React.createElement('form', { className: 'auth-form', onSubmit: handleRegister },
+              error && React.createElement('div', { style: { color: 'var(--accent-red)', fontSize: 13 } }, error),
+              React.createElement('div', { className: 'form-group' },
+                React.createElement('label', null, 'Full Name'),
+                React.createElement('input', { type: 'text', value: name, onChange: e => setName(e.target.value), required: true })
+              ),
+              React.createElement('div', { className: 'form-group' },
+                React.createElement('label', null, 'Email'),
+                React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), required: true })
+              ),
+              React.createElement('div', { className: 'form-group' },
+                React.createElement('label', null, 'Password'),
+                React.createElement('input', { type: 'password', value: password, onChange: e => setPassword(e.target.value), required: true })
+              ),
+              React.createElement('button', { type: 'submit', className: 'btn btn-primary', disabled: loading, style: { width: '100%', justifyContent: 'center' } },
+                loading ? 'Creating...' : 'Create Account'
+              ),
+              React.createElement('div', { style: { textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' } },
+                'Already have an account? ',
+                React.createElement('span', { style: { color: 'var(--accent-blue)', cursor: 'pointer' }, onClick: () => navigate('login') }, 'Sign In')
+              )
+            )
+        )
+      );
+    }
+
+    // ============================================================
+    // SIDEBAR
+    // ============================================================
+    function Sidebar() {
+      const { page, navigate, sidebarOpen, setSidebarOpen } = useNav();
+      const { user, logout } = useAuth();
+
+      const navItems = [
+        { id: 'dashboard', label: 'Dashboard', icon: '▦' },
+        { id: 'routes', label: 'Smart Routes', icon: '🗺' },
+        { id: 'accessibility', label: 'Accessibility Map', icon: '📡' },
+        { id: 'hubs', label: 'Logistics Hubs', icon: '🏭' },
+        { id: 'alerts', label: 'Alerts', icon: '🚨' },
+        { id: 'analytics', label: 'Analytics', icon: '📊' },
+        { id: 'insights', label: 'AI Insights', icon: '🤖' },
+        { id: 'settings', label: 'Settings', icon: '⚙' },
+      ];
+
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: `sidebar-overlay ${sidebarOpen ? 'show' : ''}`, onClick: () => setSidebarOpen(false) }),
+        React.createElement('div', { className: `sidebar ${sidebarOpen ? 'open' : ''}` },
+          React.createElement('div', { className: 'sidebar-logo' },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10 } },
+              React.createElement('div', { style: { width: 32, height: 32, background: 'var(--gradient-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 } }, '🏔'),
+              React.createElement('div', null,
+                React.createElement('div', { className: 'sidebar-logo-text' }, 'NER Logistics'),
+                React.createElement('div', { className: 'sidebar-logo-sub' }, 'Intelligence Platform')
+              )
+            )
+          ),
+          React.createElement('div', { className: 'nav-section' },
+            React.createElement('div', { className: 'nav-section-label' }, 'Navigation'),
+            navItems.map(item => React.createElement('div', {
+              key: item.id, className: `nav-item ${page === item.id ? 'active' : ''}`,
+              onClick: () => navigate(item.id), id: `nav-${item.id}`
+            },
+              React.createElement('span', { style: { fontSize: 14 } }, item.icon),
+              item.label
+            ))
+          ),
+          React.createElement('div', { className: 'sidebar-bottom' },
+            React.createElement('div', { className: 'user-info' },
+              React.createElement('div', { className: 'user-avatar' }, user ? user.full_name[0] : 'A'),
+              React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+                React.createElement('div', { className: 'user-name', style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, user ? user.full_name : 'Admin'),
+                React.createElement('div', { className: 'user-role' }, user ? user.role : 'admin')
+              ),
+              React.createElement('div', { title: 'Logout', style: { cursor: 'pointer', fontSize: 14, color: 'var(--text-muted)' }, onClick: () => { logout(); navigate('login'); } }, '⏻')
+            )
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // TOPBAR WITH GLOBAL SEARCH
+    // ============================================================
+    function TopBar() {
+      const { navigate, setSidebarOpen } = useNav();
+      const { user } = useAuth();
+      const [query, setQuery] = useState('');
+      const [results, setResults] = useState([]);
+      const [searching, setSearching] = useState(false);
+      const searchTimeout = useRef(null);
+
+      const handleSearch = (q) => {
+        setQuery(q);
+        clearTimeout(searchTimeout.current);
+        if (q.length < 2) { setResults([]); return; }
+        setSearching(true);
+        searchTimeout.current = setTimeout(async () => {
+          try {
+            const res = await api.search(q);
+            setResults(res);
+          } catch (e) { setResults([]); }
+          finally { setSearching(false); }
+        }, 400);
+      };
+
+      const getTypeIcon = (type) => ({ city: '📍', state: '🗺', route: '🛣', hub: '🏭', alert: '🚨' }[type] || '🔍');
+
+      return React.createElement('div', { className: 'topbar', style: { paddingLeft: 24 } },
+        React.createElement('button', { className: 'hamburger icon-btn', onClick: () => setSidebarOpen(prev => !prev) }, '☰'),
+        React.createElement('div', { className: 'topbar-search' },
+          React.createElement('span', { className: 'search-icon', style: { position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', fontSize: 14 } }, '🔍'),
+          React.createElement('input', { type: 'text', placeholder: 'Search cities, routes, hubs, alerts...', value: query, onChange: e => handleSearch(e.target.value), id: 'global-search' }),
+          (results.length > 0 || (searching && query.length >= 2)) && React.createElement('div', { className: 'search-dropdown' },
+            searching ? React.createElement('div', { style: { padding: '16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 } }, 'Searching...')
+              : results.map((r, i) => React.createElement('div', {
+                key: i, className: 'search-item',
+                onClick: () => { setQuery(''); setResults([]); navigate(r.url.split('/')[1] || 'dashboard'); }
+              },
+                React.createElement('div', { className: 'search-item-name' }, `${getTypeIcon(r.type)} ${r.name}`),
+                React.createElement('div', { className: 'search-item-sub' }, `${r.type.toUpperCase()} • ${r.subtitle}`)
+              ))
+          )
+        ),
+        React.createElement('div', { className: 'topbar-actions' },
+          React.createElement('div', { className: 'system-status' },
+            React.createElement('div', { className: 'status-dot' }),
+            'System Online'
+          ),
+          React.createElement('div', { className: 'icon-btn', id: 'notif-btn', style: { position: 'relative' }, onClick: () => navigate('alerts') },
+            '🔔',
+            React.createElement('div', { className: 'notif-dot' })
+          ),
+          React.createElement('div', { className: 'user-avatar', style: { width: 34, height: 34, fontSize: 13, cursor: 'pointer' }, onClick: () => navigate('settings') },
+            user ? user.full_name[0] : 'A'
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // LEAFLET MAP COMPONENT
+    // ============================================================
+    function MapView({ routes = [], selectedRouteId = null, hubs = [], alerts = [], origin = null, destination = null }) {
+      const mapRef = useRef(null);
+      const mapInstance = useRef(null);
+      const layersRef = useRef([]);
+
+      const NER_CENTER = [25.7, 92.5];
+      const NER_ZOOM = 7;
+
+      useEffect(() => {
+        if (!mapRef.current) return;
+        if (mapInstance.current) return;
+
+        const map = L.map(mapRef.current).setView(NER_CENTER, NER_ZOOM);
+        mapInstance.current = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 18
+        }).addTo(map);
+
+        const t1 = setTimeout(() => { try { map.invalidateSize(); } catch (e) { } }, 100);
+        const t2 = setTimeout(() => { try { map.invalidateSize(); } catch (e) { } }, 400);
+
+        const onResize = () => { try { map.invalidateSize(); } catch (e) { } };
+        window.addEventListener('resize', onResize);
+
+        return () => {
+          clearTimeout(t1);
+          clearTimeout(t2);
+          window.removeEventListener('resize', onResize);
+          if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
+        };
+      }, []);
+
+      useEffect(() => {
+        const map = mapInstance.current;
+        if (!map) return;
+
+        layersRef.current.forEach(l => { try { map.removeLayer(l); } catch (e) { } });
+        layersRef.current = [];
+
+        const addLayer = (l) => { l.addTo(map); layersRef.current.push(l); };
+
+        // Draw routes with distinct mode-specific styling
+        routes.forEach((route, idx) => {
+          if (!route.waypoints_latlng || route.waypoints_latlng.length < 2) return;
+          const isSelected = route.route_id === selectedRouteId;
+          const isRecommended = route.is_recommended;
+          const mode = (route.transport_mode || 'road').toLowerCase();
+
+          // 1. RAIL ROUTE: Real railroad tracks pattern (dark solid line base + dashed amber railroad ties overlay)
+          if (mode === 'rail') {
+            const baseRail = L.polyline(route.waypoints_latlng, {
+              color: '#0f172a',
+              weight: isSelected ? 7 : (isRecommended ? 6 : 4),
+              opacity: 0.9
+            });
+            const tieRail = L.polyline(route.waypoints_latlng, {
+              color: isSelected ? '#a855f7' : (isRecommended ? '#f59e0b' : '#cbd5e1'),
+              weight: isSelected ? 4 : (isRecommended ? 3 : 2),
+              opacity: 1,
+              dashArray: '8, 8'
+            });
+            const popupHtml = `
+              <div class="popup-title">🚆 ${route.route_name}</div>
+              <div class="popup-row"><span>Type</span><strong style="color:#f59e0b">Rail Freight Corridor</strong></div>
+              <div class="popup-row"><span>Distance</span><strong>${route.distance_km} km</strong></div>
+              <div class="popup-row"><span>Travel Time</span><strong>${route.travel_time_hours}h</strong></div>
+              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr/1000).toFixed(1)}K</strong></div>
+              <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
+              ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(245,158,11,0.2);border-radius:4px;font-size:11px;color:#f59e0b;font-weight:700;">⭐ AI RECOMMENDED (BULK FREIGHT)</div>' : ''}
+            `;
+            baseRail.bindPopup(popupHtml);
+            tieRail.bindPopup(popupHtml);
+            addLayer(baseRail);
+            addLayer(tieRail);
+
+            // Add Train Icon marker at midpoint
+            const midPt = route.waypoints_latlng[Math.floor(route.waypoints_latlng.length / 2)];
+            const trainIcon = L.divIcon({
+              html: `<div style="background:#f59e0b;color:black;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.5)">🚆</div>`,
+              className: '', iconSize: [26, 26], iconAnchor: [13, 13]
+            });
+            const trainMarker = L.marker(midPt, { icon: trainIcon });
+            trainMarker.bindPopup(popupHtml);
+            addLayer(trainMarker);
+          }
+          // 2. AIR ROUTE: Curved sky-cyan dashed flight arc + Airplane icon
+          else if (mode === 'air') {
+            const airColor = isSelected ? '#c084fc' : (isRecommended ? '#06b6d4' : '#38bdf8');
+            const airLine = L.polyline(route.waypoints_latlng, {
+              color: airColor,
+              weight: isSelected ? 5 : (isRecommended ? 4 : 3),
+              opacity: 0.95,
+              dashArray: '10, 8'
+            });
+            const popupHtml = `
+              <div class="popup-title">✈️ ${route.route_name}</div>
+              <div class="popup-row"><span>Type</span><strong style="color:#06b6d4">Great-Circle Air Freight Arc</strong></div>
+              <div class="popup-row"><span>Flight Distance</span><strong>${route.distance_km} km</strong></div>
+              <div class="popup-row"><span>Transit Time</span><strong>${route.travel_time_hours}h (Fastest)</strong></div>
+              <div class="popup-row"><span>Terrain / Landslide Risk</span><strong style="color:#10b981">0% (Air Corridor)</strong></div>
+              <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
+              ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(6,182,212,0.2);border-radius:4px;font-size:11px;color:#06b6d4;font-weight:700;">⭐ AI RECOMMENDED (EXPRESS AIR)</div>' : ''}
+            `;
+            airLine.bindPopup(popupHtml);
+            addLayer(airLine);
+
+            // Add Airplane Icon marker at flight arc apex
+            const apexPt = route.waypoints_latlng[Math.floor(route.waypoints_latlng.length / 2)];
+            const planeIcon = L.divIcon({
+              html: `<div style="background:#06b6d4;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid white;box-shadow:0 2px 8px rgba(6,182,212,0.6)">✈️</div>`,
+              className: '', iconSize: [28, 28], iconAnchor: [14, 14]
+            });
+            const planeMarker = L.marker(apexPt, { icon: planeIcon });
+            planeMarker.bindPopup(popupHtml);
+            addLayer(planeMarker);
+          }
+          // 3. MULTIMODAL ROUTE: Pink/Magenta dashed line with transit hub
+          else if (mode === 'multimodal') {
+            const multiColor = isSelected ? '#a855f7' : (isRecommended ? '#ec4899' : '#f472b6');
+            const multiLine = L.polyline(route.waypoints_latlng, {
+              color: multiColor,
+              weight: isSelected ? 5 : (isRecommended ? 4 : 3),
+              opacity: 0.9,
+              dashArray: '14, 6'
+            });
+            const popupHtml = `
+              <div class="popup-title">🔀 ${route.route_name}</div>
+              <div class="popup-row"><span>Type</span><strong style="color:#ec4899">Multimodal (Rail Trunk + Highway Feeder)</strong></div>
+              <div class="popup-row"><span>Total Distance</span><strong>${route.distance_km} km</strong></div>
+              <div class="popup-row"><span>Est. Travel Time</span><strong>${route.travel_time_hours}h</strong></div>
+              <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
+              ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(236,72,153,0.2);border-radius:4px;font-size:11px;color:#ec4899;font-weight:700;">⭐ AI RECOMMENDED (OPTIMAL MULTIMODAL)</div>' : ''}
+            `;
+            multiLine.bindPopup(popupHtml);
+            addLayer(multiLine);
+
+            // Transfer hub marker at midpoint
+            const hubPt = route.waypoints_latlng[Math.floor(route.waypoints_latlng.length / 2)];
+            const transferIcon = L.divIcon({
+              html: `<div style="background:#ec4899;color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 2px 8px rgba(236,72,153,0.6)">🔄</div>`,
+              className: '', iconSize: [26, 26], iconAnchor: [13, 13]
+            });
+            const transferMarker = L.marker(hubPt, { icon: transferIcon });
+            transferMarker.bindPopup(`<div class="popup-title">🔄 Multimodal Transfer Hub</div><div class="popup-row">Rail-to-Truck transshipment terminal</div>`);
+            addLayer(transferMarker);
+          }
+          // 4. ROAD / HIGHWAY ROUTE: Exact turn-by-turn road curves
+          else {
+            const roadColor = isSelected ? '#8b5cf6' : (isRecommended ? '#3b82f6' : '#10b981');
+            const roadLine = L.polyline(route.waypoints_latlng, {
+              color: roadColor,
+              weight: isSelected ? 6 : (isRecommended ? 5 : 3),
+              opacity: isSelected ? 1 : 0.85
+            });
+            const popupHtml = `
+              <div class="popup-title">🚛 ${route.route_name}</div>
+              <div class="popup-row"><span>Type</span><strong>Exact Road Network (Turn-by-Turn)</strong></div>
+              <div class="popup-row"><span>Distance</span><strong>${route.distance_km} km</strong></div>
+              <div class="popup-row"><span>Travel Time</span><strong>${route.travel_time_hours}h</strong></div>
+              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr/1000).toFixed(1)}K</strong></div>
+              <div class="popup-row"><span>Road Quality</span><strong>${route.road_quality_score}/100</strong></div>
+              <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
+              ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(59,130,246,0.2);border-radius:4px;font-size:11px;color:#60a5fa;font-weight:700;">⭐ AI RECOMMENDED ROAD ROUTE</div>' : ''}
+            `;
+            roadLine.bindPopup(popupHtml);
+            addLayer(roadLine);
+
+            // Truck icon marker
+            if (route.waypoints_latlng.length > 5) {
+              const truckPt = route.waypoints_latlng[Math.floor(route.waypoints_latlng.length * 0.35)];
+              const truckIcon = L.divIcon({
+                html: `<div style="background:${roadColor};color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4)">🚛</div>`,
+                className: '', iconSize: [26, 26], iconAnchor: [13, 13]
+              });
+              const truckMarker = L.marker(truckPt, { icon: truckIcon });
+              truckMarker.bindPopup(popupHtml);
+              addLayer(truckMarker);
+            }
+          }
+        });
+
+        // Origin & destination markers
+        const makeIcon = (emoji, color) => L.divIcon({
+          html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)">${emoji}</div>`,
+          className: '', iconSize: [28, 28], iconAnchor: [14, 14]
+        });
+
+        if (origin) {
+          const m = L.marker([origin.lat, origin.lng], { icon: makeIcon('🟢', '#10b981') });
+          m.bindPopup(`<div class="popup-title">Origin: ${origin.name}</div><div class="popup-row"><span>State</span><strong>${origin.state_name || ''}</strong></div>`);
+          addLayer(m);
+        }
+        if (destination) {
+          const m = L.marker([destination.lat, destination.lng], { icon: makeIcon('🔴', '#ef4444') });
+          m.bindPopup(`<div class="popup-title">Destination: ${destination.name}</div>`);
+          addLayer(m);
+        }
+
+        // Hub markers
+        hubs.forEach(hub => {
+          if (!hub.lat || !hub.lng) return;
+          const m = L.marker([hub.lat, hub.lng], { icon: makeIcon('📦', '#f59e0b') });
+          m.bindPopup(`
+        <div class="popup-title">📦 ${hub.name}</div>
+        <div class="popup-row"><span>Score</span><strong>${hub.connectivity_score}/100</strong></div>
+        <div class="popup-row"><span>Status</span><strong>${hub.status}</strong></div>
+      `);
+          addLayer(m);
+        });
+
+        // Alert markers
+        alerts.forEach(alert => {
+          if (!alert.lat || !alert.lng) return;
+          const emoji = { critical: '🔴', high: '🟠', medium: '🟡', low: '🟢' }[alert.severity] || '⚠';
+          const m = L.marker([alert.lat, alert.lng], { icon: makeIcon(emoji, '#ef4444') });
+          m.bindPopup(`
+        <div class="popup-title">${alert.title}</div>
+        <div class="popup-row"><span>Severity</span><strong style="color:${alert.severity === 'critical' ? '#ef4444' : '#f59e0b'}">${alert.severity.toUpperCase()}</strong></div>
+        <div class="popup-row"><span>Location</span><strong>${alert.location}</strong></div>
+      `);
+          addLayer(m);
+        });
+
+        // Invalidate size on updates
+        setTimeout(() => { try { map.invalidateSize(); } catch (e) { } }, 100);
+
+        // Fit bounds intelligently
+        if (routes.length > 0) {
+          const allPoints = [];
+          routes.forEach(r => {
+            if (r.waypoints_latlng) r.waypoints_latlng.forEach(pt => allPoints.push(pt));
+          });
+          if (allPoints.length > 1) {
+            try { map.fitBounds(allPoints, { padding: [50, 50], maxZoom: 10 }); } catch (e) { }
+          }
+        } else if (origin && destination) {
+          try { map.fitBounds([[origin.lat, origin.lng], [destination.lat, destination.lng]], { padding: [60, 60], maxZoom: 10 }); } catch (e) { }
+        } else if (layersRef.current.length > 0) {
+          const markers = layersRef.current.filter(l => l instanceof L.Marker);
+          if (markers.length > 0) {
+            const group = L.featureGroup(markers);
+            if (group.getBounds && group.getLayers().length > 0) {
+              try { map.fitBounds(group.getBounds(), { padding: [40, 40], maxZoom: 8 }); } catch (e) { }
+            }
+          }
+        }
+      }, [routes, selectedRouteId, hubs, alerts, origin, destination]);
+
+      return React.createElement('div', { style: { position: 'relative', height: '100%', width: '100%', minHeight: 500, display: 'flex', flexDirection: 'column', flex: 1 } },
+        React.createElement('div', { ref: mapRef, id: 'main-map', style: { height: '100%', width: '100%', minHeight: 500, flex: 1 } }),
+        React.createElement('div', { className: 'map-legend' },
+          React.createElement('div', { style: { fontWeight: 700, fontSize: 11, marginBottom: 8 } }, 'Transport Mode Legend'),
+          [
+            { color: '#3b82f6', label: '🚛 Road Highway (Turn-by-Turn)', type: 'line' },
+            { color: '#06b6d4', label: '✈️ Air Freight (Curved Arc)', type: 'line', dashed: true },
+            { color: '#f59e0b', label: '🚆 Rail Corridor (Tracks)', type: 'line', dashed: true },
+            { color: '#ec4899', label: '🔀 Multimodal Transit (Rail+Road)', type: 'line', dashed: true },
+            { color: '#10b981', label: '🟢 Origin City', type: 'dot' },
+            { color: '#ef4444', label: '🔴 Destination City', type: 'dot' },
+            { color: '#f59e0b', label: '📦 Logistics Hub', type: 'dot' },
+          ].map((item, i) => React.createElement('div', { key: i, className: 'legend-item', style: { color: 'var(--text-secondary)', fontSize: 11 } },
+            item.type === 'dot'
+              ? React.createElement('div', { className: 'legend-dot', style: { background: item.color } })
+              : React.createElement('div', { className: 'legend-line', style: { background: item.color, borderTop: item.dashed ? '1px dashed white' : 'none' } }),
+            item.label
+          ))
+        )
+      );
+    }
+
+    // ============================================================
+    // DASHBOARD PAGE
+    // ============================================================
+    function DashboardPage() {
+      const [kpis, setKpis] = useState(null);
+      const [alerts, setAlerts] = useState([]);
+      const [hubs, setHubs] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+      const { navigate } = useNav();
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const [k, a, h] = await Promise.all([api.getKPIs(), api.getAlerts(), api.getHubs()]);
+          setKpis(k); setAlerts(a); setHubs(h);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+
+      useEffect(() => { load(); }, []);
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const kpiCards = kpis ? [
+        { label: 'Active Routes', value: kpis.active_routes, icon: '🛣', color: 'var(--accent-blue)', change: '+2 this week' },
+        { label: 'Avg Accessibility', value: `${kpis.avg_accessibility}%`, icon: '📡', color: 'var(--accent-green)', change: 'Across 8 states' },
+        { label: 'High Risk Routes', value: kpis.high_risk_routes, icon: '⚠', color: 'var(--accent-red)', change: 'Risk score > 60' },
+        { label: 'Logistics Hubs', value: kpis.logistics_hubs, icon: '🏭', color: 'var(--accent-yellow)', change: 'Across NER' },
+        { label: 'Active Alerts', value: kpis.active_alerts, icon: '🚨', color: 'var(--accent-orange)', change: `${kpis.critical_alerts} critical` },
+        { label: 'Avg Delivery Time', value: `${kpis.avg_delivery_time_hours}h`, icon: '⏱', color: 'var(--accent-cyan)', change: 'Per route' },
+      ] : [];
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'demo-banner' },
+          '⚠ Data Source: Simulated NER Demo Data — For hackathon demonstration purposes'
+        ),
+        React.createElement('div', { className: 'page-header', style: { marginTop: 16 } },
+          React.createElement('div', { className: 'page-title' }, 'Regional Overview Dashboard'),
+          React.createElement('div', { className: 'page-subtitle' }, 'North Eastern Region Logistics Intelligence — Live system metrics')
+        ),
+        React.createElement('div', { className: 'kpi-grid' },
+          kpiCards.map((card, i) => React.createElement('div', { key: i, className: 'kpi-card' },
+            React.createElement('div', { className: 'kpi-icon', style: { background: `${card.color}22`, fontSize: 20 } }, card.icon),
+            React.createElement('div', { className: 'kpi-value', style: { color: card.color } }, card.value),
+            React.createElement('div', { className: 'kpi-label' }, card.label),
+            React.createElement('div', { className: 'kpi-change', style: { color: 'var(--text-muted)' } }, card.change)
+          ))
+        ),
+
+        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 } },
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } },
+              React.createElement('h3', { style: { fontSize: 14, fontWeight: 700 } }, '🚨 Recent Alerts'),
+              React.createElement('button', { className: 'btn btn-sm btn-secondary', onClick: () => navigate('alerts') }, 'View All')
+            ),
+            alerts.slice(0, 4).map((a, i) => React.createElement('div', { key: i, style: { padding: '10px 0', borderBottom: '1px solid var(--border)' } },
+              React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 } },
+                React.createElement('div', { style: { fontSize: 13, fontWeight: 500 } }, a.title.substring(0, 40) + (a.title.length > 40 ? '...' : '')),
+                React.createElement('span', { className: `badge badge-${a.severity}` }, a.severity)
+              ),
+              React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } }, a.location)
+            ))
+          ),
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } },
+              React.createElement('h3', { style: { fontSize: 14, fontWeight: 700 } }, '🏭 Top Logistics Hubs'),
+              React.createElement('button', { className: 'btn btn-sm btn-secondary', onClick: () => navigate('hubs') }, 'View All')
+            ),
+            hubs.slice(0, 4).map((h, i) => React.createElement('div', { key: i, style: { padding: '10px 0', borderBottom: '1px solid var(--border)' } },
+              React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontSize: 13, fontWeight: 500 } }, h.name.substring(0, 35) + (h.name.length > 35 ? '...' : '')),
+                  React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 2 } }, `${h.city_name}, ${h.state_name}`)
+                ),
+                React.createElement('div', { style: { textAlign: 'right' } },
+                  React.createElement('div', { style: { fontSize: 14, fontWeight: 800, color: 'var(--accent-blue)' } }, `${h.connectivity_score}`),
+                  React.createElement('div', { style: { fontSize: 10, color: 'var(--text-muted)' } }, 'score')
+                )
+              )
+            ))
+          )
+        ),
+
+        React.createElement('div', { style: { marginTop: 20 } },
+          React.createElement('div', { className: 'card' },
+            React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 } },
+              React.createElement('h3', { style: { fontSize: 14, fontWeight: 700 } }, '⚡ Quick Actions'),
+            ),
+            React.createElement('div', { style: { display: 'flex', gap: 12, flexWrap: 'wrap' } },
+              React.createElement('button', { className: 'btn btn-primary', onClick: () => navigate('routes'), id: 'dash-plan-route' }, '🗺️ Plan New Route'),
+              React.createElement('button', { className: 'btn btn-secondary', onClick: () => navigate('alerts'), id: 'dash-view-alerts' }, '🚨 View Alerts'),
+              React.createElement('button', { className: 'btn btn-secondary', onClick: () => navigate('analytics'), id: 'dash-analytics' }, '📊 Analytics'),
+              React.createElement('button', { className: 'btn btn-secondary', onClick: () => navigate('insights'), id: 'dash-insights' }, '🤖 AI Insights')
+            )
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // SMART ROUTES PAGE
+    // ============================================================
+    function RoutesPage() {
+      const [cities, setCities] = useState([]);
+      const [origin, setOrigin] = useState('');
+      const [destination, setDestination] = useState('');
+      const [transportMode, setTransportMode] = useState('road');
+      const [priority, setPriority] = useState('balanced');
+      const [cargoType, setCargoType] = useState('');
+      const [cargoWeight, setCargoWeight] = useState('');
+      const [loading, setLoading] = useState(false);
+      const [result, setResult] = useState(null);
+      const [error, setError] = useState('');
+      const [selectedRouteId, setSelectedRouteId] = useState(null);
+      const [hubs, setHubs] = useState([]);
+      const [mapAlerts, setMapAlerts] = useState([]);
+
+      useEffect(() => {
+        api.getCities().then(setCities).catch(console.error);
+        api.getHubs().then(setHubs).catch(console.error);
+        api.getAlerts().then(setMapAlerts).catch(console.error);
+      }, []);
+
+      const originCity = cities.find(c => String(c.id) === origin);
+      const destCity = cities.find(c => String(c.id) === destination);
+
+      const handleOptimize = async (e) => {
+        e.preventDefault();
+        if (!origin || !destination) { setError('Please select both origin and destination.'); return; }
+        if (origin === destination) { setError('Origin and destination must be different.'); return; }
+        setLoading(true); setError(''); setResult(null);
+        try {
+          const res = await api.optimizeRoute({
+            origin_city_id: parseInt(origin),
+            destination_city_id: parseInt(destination),
+            transport_mode: transportMode,
+            priority,
+            cargo_type: cargoType || null,
+            cargo_weight_kg: cargoWeight ? parseFloat(cargoWeight) : null,
+          });
+          setResult(res);
+          setSelectedRouteId(res.recommended_route_id);
+        } catch (err) { setError(err.message); }
+        finally { setLoading(false); }
+      };
+
+      const getRiskColor = (score) => score < 33 ? 'var(--accent-green)' : score < 66 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+      const getRiskLabel = (score) => score < 33 ? 'Low' : score < 66 ? 'Medium' : 'High';
+      const getModeIcon = (mode) => ({ road: '🚛', rail: '🚆', air: '✈️', multimodal: '🔀' }[mode] || '🚛');
+
+      const priorityWeightLabels = result ? Object.entries(result.weights_used).map(([k, v]) => ({ key: k, pct: Math.round(v * 100) })) : [];
+
+      return React.createElement('div', { className: 'page-content', style: { paddingBottom: 0 } },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '🗺 Smart Route Planner'),
+          React.createElement('div', { className: 'page-subtitle' }, 'AI-powered route optimization for the North Eastern Region')
+        ),
+        React.createElement('div', { className: 'route-layout' },
+          // LEFT PANEL
+          React.createElement('div', { className: 'route-panel' },
+            // Form
+            React.createElement('div', { className: 'route-form' },
+              React.createElement('form', { onSubmit: handleOptimize },
+                React.createElement('div', { style: { marginBottom: 16 } },
+                  React.createElement('label', null, '📍 Origin City'),
+                  React.createElement('select', { value: origin, onChange: e => setOrigin(e.target.value), id: 'origin-select' },
+                    React.createElement('option', { value: '' }, 'Select origin city...'),
+                    cities.map(c => React.createElement('option', { key: c.id, value: String(c.id) }, `${c.name} (${c.state_name})`))
+                  )
+                ),
+                React.createElement('div', { style: { marginBottom: 16 } },
+                  React.createElement('label', null, '🎯 Destination City'),
+                  React.createElement('select', { value: destination, onChange: e => setDestination(e.target.value), id: 'destination-select' },
+                    React.createElement('option', { value: '' }, 'Select destination city...'),
+                    cities.filter(c => String(c.id) !== origin).map(c => React.createElement('option', { key: c.id, value: String(c.id) }, `${c.name} (${c.state_name})`))
+                  )
+                ),
+                React.createElement('div', { className: 'form-row', style: { marginBottom: 16 } },
+                  React.createElement('div', null,
+                    React.createElement('label', null, '🚛 Transport Mode'),
+                    React.createElement('select', { value: transportMode, onChange: e => setTransportMode(e.target.value), id: 'mode-select' },
+                      React.createElement('option', { value: 'road' }, 'Road'),
+                      React.createElement('option', { value: 'rail' }, 'Rail'),
+                      React.createElement('option', { value: 'air' }, 'Air'),
+                      React.createElement('option', { value: 'multimodal' }, 'Multimodal'),
+                    )
+                  ),
+                  React.createElement('div', null,
+                    React.createElement('label', null, '⚡ Priority'),
+                    React.createElement('select', { value: priority, onChange: e => setPriority(e.target.value), id: 'priority-select' },
+                      React.createElement('option', { value: 'balanced' }, 'Balanced'),
+                      React.createElement('option', { value: 'fastest' }, 'Fastest'),
+                      React.createElement('option', { value: 'cheapest' }, 'Cheapest'),
+                      React.createElement('option', { value: 'safest' }, 'Safest'),
+                      React.createElement('option', { value: 'most_accessible' }, 'Most Accessible'),
+                    )
+                  )
+                ),
+                React.createElement('div', { className: 'form-row', style: { marginBottom: 16 } },
+                  React.createElement('div', null,
+                    React.createElement('label', null, '📦 Cargo Type (Optional)'),
+                    React.createElement('select', { value: cargoType, onChange: e => setCargoType(e.target.value) },
+                      React.createElement('option', { value: '' }, 'General'),
+                      React.createElement('option', { value: 'perishable' }, 'Perishable'),
+                      React.createElement('option', { value: 'fragile' }, 'Fragile'),
+                      React.createElement('option', { value: 'heavy' }, 'Heavy'),
+                    )
+                  ),
+                  React.createElement('div', null,
+                    React.createElement('label', null, '⚖ Weight (kg, Optional)'),
+                    React.createElement('input', { type: 'number', value: cargoWeight, onChange: e => setCargoWeight(e.target.value), placeholder: '500', min: 1 })
+                  )
+                ),
+                error && React.createElement('div', { style: { background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--accent-red)', marginBottom: 12 } }, error),
+                React.createElement('button', { type: 'submit', className: 'btn btn-success', disabled: loading, style: { width: '100%', justifyContent: 'center' }, id: 'find-route-btn' },
+                  loading ? React.createElement(React.Fragment, null, React.createElement('div', { className: 'spinner', style: { width: 16, height: 16, borderWidth: 2 } }), ' Calculating Routes...') : '🤖 Find Optimal Route'
+                )
+              )
+            ),
+
+            // AI Explanation
+            result && React.createElement('div', { className: 'ai-explanation' },
+              React.createElement('div', { className: 'ai-explanation-title' }, '🤖 AI Recommendation Engine'),
+              React.createElement('div', { className: 'ai-explanation-text' }, result.explanation),
+              React.createElement('div', { style: { marginTop: 12 } },
+                React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 } }, `Priority weights (${result.priority_used.toUpperCase()})`),
+                React.createElement('div', { style: { display: 'flex', gap: 8 } },
+                  priorityWeightLabels.map(w => React.createElement('div', { key: w.key, style: { flex: 1, textAlign: 'center' } },
+                    React.createElement('div', { style: { height: 40, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' } },
+                      React.createElement('div', { style: { width: '100%', height: `${w.pct * 1.2}%`, background: 'var(--accent-blue)', borderRadius: '4px 4px 0 0', minHeight: 4 } })
+                    ),
+                    React.createElement('div', { style: { fontSize: 9, color: 'var(--text-muted)', marginTop: 4, textTransform: 'capitalize' } }, w.key.replace('_', ' ')),
+                    React.createElement('div', { style: { fontSize: 10, fontWeight: 700, color: 'var(--accent-blue-light)' } }, `${w.pct}%`)
+                  ))
+                )
+              )
+            ),
+
+            // Route Cards
+            result && React.createElement('div', { className: 'route-cards' },
+              React.createElement('div', { style: { fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 } }, `${result.routes.length} route${result.routes.length !== 1 ? 's' : ''} found`),
+              result.routes.map((route, i) => React.createElement('div', {
+                key: route.route_id,
+                className: `route-card ${selectedRouteId === route.route_id ? 'selected' : ''} ${route.is_recommended ? 'recommended' : ''}`,
+                onClick: () => setSelectedRouteId(route.route_id),
+                id: `route-card-${i}`
+              },
+                React.createElement('div', { className: 'route-card-header' },
+                  React.createElement('div', null,
+                    route.is_recommended && React.createElement('span', { className: 'badge badge-recommended', style: { marginBottom: 4, display: 'inline-flex' } }, '⭐ AI Recommended'),
+                    React.createElement('div', { className: 'route-name' }, route.route_name.substring(0, 55) + (route.route_name.length > 55 ? '...' : '')),
+                    React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } },
+                      `${getModeIcon(route.transport_mode)} ${route.transport_mode.toUpperCase()} • ${route.weather_condition} weather`
+                    )
+                  ),
+                  React.createElement('div', { style: { textAlign: 'right', flexShrink: 0 } },
+                    React.createElement('div', { className: 'route-score' }, route.overall_score),
+                    React.createElement('div', { style: { fontSize: 10, color: 'var(--text-muted)' } }, '/100')
+                  )
+                ),
+                React.createElement('div', { className: 'route-metrics' },
+                  React.createElement('div', { className: 'metric-item' },
+                    React.createElement('div', { className: 'metric-value' }, `${route.distance_km} km`),
+                    React.createElement('div', { className: 'metric-label' }, 'Distance')
+                  ),
+                  React.createElement('div', { className: 'metric-item' },
+                    React.createElement('div', { className: 'metric-value' }, `${route.travel_time_hours}h`),
+                    React.createElement('div', { className: 'metric-label' }, 'Travel Time')
+                  ),
+                  React.createElement('div', { className: 'metric-item' },
+                    React.createElement('div', { className: 'metric-value' }, `₹${(route.cost_inr / 1000).toFixed(1)}K`),
+                    React.createElement('div', { className: 'metric-label' }, 'Est. Cost')
+                  ),
+                ),
+                React.createElement('div', { style: { marginTop: 10 } },
+                  React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 } },
+                    React.createElement('span', null, `Accessibility: ${route.accessibility_score}%`),
+                    React.createElement('span', { style: { color: getRiskColor(route.risk_score) } }, `Risk: ${getRiskLabel(route.risk_score)}`)
+                  ),
+                  React.createElement(ProgressBar, { value: route.accessibility_score, color: 'var(--accent-green)' }),
+                ),
+                route.disruption_count > 0 && React.createElement('div', { style: { marginTop: 8, fontSize: 11, color: 'var(--accent-yellow)', display: 'flex', alignItems: 'center', gap: 4 } },
+                  `⚠ ${route.disruption_count} active disruption${route.disruption_count !== 1 ? 's' : ''} affecting this route`
+                )
+              ))
+            )
+          ),
+
+          // RIGHT PANEL - MAP
+          React.createElement('div', { className: 'map-container' },
+            React.createElement(MapView, {
+              routes: result ? result.routes : [],
+              selectedRouteId,
+              hubs: hubs.slice(0, 4),
+              alerts: mapAlerts.filter(a => a.lat && a.lng).slice(0, 5),
+              origin: originCity,
+              destination: destCity
+            })
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // ACCESSIBILITY MAP PAGE
+    // ============================================================
+    function AccessibilityPage() {
+      const [analytics, setAnalytics] = useState(null);
+      const [hubs, setHubs] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const [a, h] = await Promise.all([api.getAnalytics(), api.getHubs()]);
+          setAnalytics(a); setHubs(h);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+      useEffect(() => { load(); }, []);
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const getAccColor = (score) => score >= 85 ? 'var(--accent-green)' : score >= 75 ? 'var(--accent-cyan)' : score >= 65 ? 'var(--accent-yellow)' : 'var(--accent-red)';
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '📡 Accessibility Intelligence Map'),
+          React.createElement('div', { className: 'page-subtitle' }, 'State-level accessibility scores and infrastructure analysis')
+        ),
+        React.createElement('div', { className: 'accessibility-layout' },
+          React.createElement('div', null,
+            React.createElement('div', { className: 'card', style: { marginBottom: 20, height: 440 } },
+              React.createElement(MapView, { hubs, routes: [], alerts: [] })
+            ),
+            React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 } },
+              analytics.states.map((s, i) => React.createElement('div', { key: i, className: 'card', style: { textAlign: 'center' } },
+                React.createElement('div', { style: { fontSize: 22, fontWeight: 800, color: getAccColor(s.accessibility_score) } }, `${s.accessibility_score}`),
+                React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 2 } }, s.state),
+                React.createElement(ProgressBar, { value: s.accessibility_score, color: getAccColor(s.accessibility_score), height: 4 })
+              ))
+            )
+          ),
+          React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
+            React.createElement('div', { className: 'card' },
+              React.createElement('div', { className: 'chart-title' }, '📊 State Accessibility Scores'),
+              React.createElement('div', { className: 'state-bars' },
+                analytics.states.sort((a, b) => b.accessibility_score - a.accessibility_score).map((s, i) => React.createElement('div', { key: i, className: 'state-bar-item' },
+                  React.createElement('div', { className: 'state-name' }, s.state),
+                  React.createElement('div', { className: 'state-bar-outer' },
+                    React.createElement('div', { className: 'state-bar-inner', style: { width: `${s.accessibility_score}%`, background: getAccColor(s.accessibility_score) } })
+                  ),
+                  React.createElement('div', { className: 'state-score' }, s.accessibility_score)
+                ))
+              )
+            ),
+            React.createElement('div', { className: 'card' },
+              React.createElement('div', { className: 'chart-title' }, '⏱ Avg Delivery Time by State'),
+              analytics.states.map((s, i) => React.createElement('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0', borderBottom: '1px solid var(--border)' } },
+                React.createElement('div', { style: { width: 80, fontSize: 11, color: 'var(--text-secondary)' } }, s.state),
+                React.createElement('div', { style: { flex: 1, background: 'var(--bg-secondary)', borderRadius: 4, height: 8, overflow: 'hidden' } },
+                  React.createElement('div', { style: { height: '100%', width: `${Math.min(100, s.avg_delivery_time_hours / 20 * 100)}%`, background: 'var(--accent-cyan)', borderRadius: 4 } })
+                ),
+                React.createElement('div', { style: { fontSize: 11, fontWeight: 700, width: 36 } }, `${s.avg_delivery_time_hours}h`)
+              ))
+            )
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // LOGISTICS HUBS PAGE
+    // ============================================================
+    function HubsPage() {
+      const [hubs, setHubs] = useState([]);
+      const [filtered, setFiltered] = useState([]);
+      const [search, setSearch] = useState('');
+      const [statusFilter, setStatusFilter] = useState('');
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+      const [selectedHub, setSelectedHub] = useState(null);
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const h = await api.getHubs();
+          setHubs(h); setFiltered(h);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+      useEffect(() => { load(); }, []);
+
+      useEffect(() => {
+        let f = hubs;
+        if (search) f = f.filter(h => h.name.toLowerCase().includes(search.toLowerCase()) || h.city_name?.toLowerCase().includes(search.toLowerCase()) || h.state_name?.toLowerCase().includes(search.toLowerCase()));
+        if (statusFilter) f = f.filter(h => h.status === statusFilter);
+        setFiltered(f);
+      }, [search, statusFilter, hubs]);
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const ConnBar = ({ label, value }) => React.createElement('div', { className: 'conn-item' },
+        React.createElement('label', null, label),
+        React.createElement('div', { className: 'conn-value', style: { color: value >= 80 ? 'var(--accent-green)' : value >= 60 ? 'var(--accent-yellow)' : 'var(--accent-red)' } }, `${value}`),
+        React.createElement(ProgressBar, { value, color: value >= 80 ? 'var(--accent-green)' : value >= 60 ? 'var(--accent-yellow)' : 'var(--accent-red)', height: 6 })
+      );
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '🏭 Logistics Hubs'),
+          React.createElement('div', { className: 'page-subtitle' }, 'Infrastructure network across North Eastern Region')
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' } },
+          React.createElement('input', { type: 'text', placeholder: '🔍 Search hubs by name or city...', value: search, onChange: e => setSearch(e.target.value), style: { maxWidth: 300 }, id: 'hub-search' }),
+          React.createElement('select', { value: statusFilter, onChange: e => setStatusFilter(e.target.value), style: { width: 160 } },
+            React.createElement('option', { value: '' }, 'All Statuses'),
+            React.createElement('option', { value: 'active' }, 'Active'),
+            React.createElement('option', { value: 'limited' }, 'Limited'),
+            React.createElement('option', { value: 'inactive' }, 'Inactive'),
+          ),
+          React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)', display: 'flex', alignItems: 'center' } }, `${filtered.length} hub${filtered.length !== 1 ? 's' : ''}`)
+        ),
+        filtered.length === 0 ? React.createElement(EmptyState) :
+          React.createElement('div', { className: 'hubs-grid' },
+            filtered.map((hub, i) => React.createElement('div', { key: hub.id, className: 'hub-card', onClick: () => setSelectedHub(hub), id: `hub-card-${i}` },
+              React.createElement('div', { className: 'hub-header' },
+                React.createElement('div', null,
+                  React.createElement('div', { className: 'hub-name' }, hub.name),
+                  React.createElement('div', { className: 'hub-location' }, `${hub.city_name}, ${hub.state_name}`),
+                  React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } }, hub.hub_type.replace(/_/g, ' ').toUpperCase())
+                ),
+                React.createElement('span', { className: `badge badge-${hub.status === 'active' ? 'active' : 'limited'}` }, hub.status)
+              ),
+              React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 } },
+                React.createElement('div', { style: { fontSize: 32, fontWeight: 800, color: 'var(--accent-blue)' } }, hub.connectivity_score.toFixed(0)),
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)' } }, 'Connectivity Score'),
+                  React.createElement(ProgressBar, { value: hub.connectivity_score, color: 'var(--accent-blue)', height: 6 })
+                )
+              ),
+              React.createElement('div', { className: 'connectivity-bars' },
+                React.createElement(ConnBar, { label: '🛣 Road', value: hub.road_connectivity }),
+                React.createElement(ConnBar, { label: '🚆 Rail', value: hub.rail_connectivity }),
+                React.createElement(ConnBar, { label: '✈ Air', value: hub.air_connectivity })
+              ),
+              React.createElement('div', { style: { marginTop: 12, fontSize: 11, color: 'var(--text-muted)' } },
+                `Storage: ${hub.storage_capacity_tons} tons • ${hub.storage_available_percent}% available`
+              )
+            ))
+          ),
+
+        selectedHub && React.createElement('div', { className: 'modal-overlay', onClick: e => { if (e.target === e.currentTarget) setSelectedHub(null); } },
+          React.createElement('div', { className: 'modal' },
+            React.createElement('div', { className: 'modal-header' },
+              React.createElement('div', null,
+                React.createElement('div', { className: 'modal-title' }, selectedHub.name),
+                React.createElement('div', { style: { fontSize: 13, color: 'var(--text-secondary)', marginTop: 4 } }, `${selectedHub.city_name}, ${selectedHub.state_name}`)
+              ),
+              React.createElement('button', { className: 'icon-btn', onClick: () => setSelectedHub(null), style: { fontSize: 18 } }, '✕')
+            ),
+            React.createElement('div', { className: 'modal-body' },
+              React.createElement('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 } },
+                [
+                  { label: 'Hub Type', value: selectedHub.hub_type.replace(/_/g, ' ').toUpperCase() },
+                  { label: 'Status', value: selectedHub.status.toUpperCase() },
+                  { label: 'Connectivity Score', value: `${selectedHub.connectivity_score}/100` },
+                  { label: 'Storage Capacity', value: `${selectedHub.storage_capacity_tons} tons` },
+                  { label: 'Available Storage', value: `${selectedHub.storage_available_percent}%` },
+                  { label: 'Coordinates', value: `${selectedHub.lat?.toFixed(4)}, ${selectedHub.lng?.toFixed(4)}` },
+                ].map((row, i) => React.createElement('div', { key: i },
+                  React.createElement('label', null, row.label),
+                  React.createElement('div', { style: { fontWeight: 600, marginTop: 4 } }, row.value)
+                ))
+              ),
+              React.createElement('div', { style: { marginBottom: 16 } },
+                React.createElement('label', null, 'Connectivity Breakdown'),
+                React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 8 } },
+                  [
+                    { label: 'Road', value: selectedHub.road_connectivity },
+                    { label: 'Rail', value: selectedHub.rail_connectivity },
+                    { label: 'Air', value: selectedHub.air_connectivity },
+                  ].map((c, i) => React.createElement('div', { key: i, style: { background: 'var(--bg-secondary)', borderRadius: 8, padding: '12px', textAlign: 'center' } },
+                    React.createElement('div', { style: { fontSize: 24, fontWeight: 800, color: 'var(--accent-blue)' } }, c.value.toFixed(0)),
+                    React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } }, c.label),
+                    React.createElement(ProgressBar, { value: c.value, height: 4 })
+                  ))
+                )
+              ),
+              selectedHub.description && React.createElement('div', null,
+                React.createElement('label', null, 'Description'),
+                React.createElement('div', { style: { fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginTop: 4, background: 'var(--bg-secondary)', borderRadius: 8, padding: '12px' } }, selectedHub.description)
+              )
+            )
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // ALERTS PAGE
+    // ============================================================
+    function AlertsPage() {
+      const [alerts, setAlerts] = useState([]);
+      const [filtered, setFiltered] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+      const [severityFilter, setSeverityFilter] = useState('all');
+      const [categoryFilter, setCategoryFilter] = useState('all');
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const a = await api.getAlerts();
+          setAlerts(a); setFiltered(a);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+      useEffect(() => { load(); }, []);
+
+      useEffect(() => {
+        let f = alerts;
+        if (severityFilter !== 'all') f = f.filter(a => a.severity === severityFilter);
+        if (categoryFilter !== 'all') f = f.filter(a => a.category === categoryFilter);
+        setFiltered(f);
+      }, [severityFilter, categoryFilter, alerts]);
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const getCategoryIcon = (cat) => ({ weather: '🌧', road_closure: '🚧', landslide: '⛰', flood: '🌊', traffic: '🚗', construction: '🏗', infrastructure: '🏛', border_checkpoint: '🛂' }[cat] || '⚠');
+      const formatDate = (dt) => dt ? new Date(dt).toLocaleString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+      const counts = { all: alerts.length, critical: alerts.filter(a => a.severity === 'critical').length, high: alerts.filter(a => a.severity === 'high').length, medium: alerts.filter(a => a.severity === 'medium').length, low: alerts.filter(a => a.severity === 'low').length };
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '🚨 Alerts & Disruptions'),
+          React.createElement('div', { className: 'page-subtitle' }, 'Active alerts affecting NER logistics network — Demo Data (Simulated)')
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 20 } },
+          React.createElement('div', { className: 'filter-bar' },
+            ['all', 'critical', 'high', 'medium', 'low'].map(sev => React.createElement('button', {
+              key: sev, className: `filter-btn ${severityFilter === sev ? 'active' : ''}`,
+              onClick: () => setSeverityFilter(sev), id: `filter-sev-${sev}`
+            }, `${sev.charAt(0).toUpperCase() + sev.slice(1)} ${counts[sev] || 0}`))
+          ),
+          React.createElement('select', { value: categoryFilter, onChange: e => setCategoryFilter(e.target.value), style: { width: 180 } },
+            React.createElement('option', { value: 'all' }, 'All Categories'),
+            React.createElement('option', { value: 'weather' }, '🌧 Weather'),
+            React.createElement('option', { value: 'road_closure' }, '🚧 Road Closure'),
+            React.createElement('option', { value: 'landslide' }, '⛰ Landslide'),
+            React.createElement('option', { value: 'flood' }, '🌊 Flood'),
+            React.createElement('option', { value: 'traffic' }, '🚗 Traffic'),
+            React.createElement('option', { value: 'construction' }, '🏗 Construction'),
+            React.createElement('option', { value: 'border_checkpoint' }, '🛂 Border/Checkpoint'),
+          )
+        ),
+        filtered.length === 0 ? React.createElement(EmptyState, { message: 'No alerts match your filters' }) :
+          React.createElement('div', { className: 'alerts-list' },
+            filtered.map((alert, i) => React.createElement('div', { key: alert.id, className: `alert-item severity-${alert.severity}`, id: `alert-item-${i}` },
+              React.createElement('div', { className: 'alert-header' },
+                React.createElement('div', null,
+                  React.createElement('div', { className: 'alert-title' }, `${getCategoryIcon(alert.category)} ${alert.title}`),
+                  React.createElement('div', { className: 'alert-meta' },
+                    React.createElement('span', null, `📍 ${alert.location}`),
+                    React.createElement('span', null, `🕐 ${formatDate(alert.starts_at)}`),
+                    alert.ends_at && React.createElement('span', null, `• Ends: ${formatDate(alert.ends_at)}`)
+                  )
+                ),
+                React.createElement('div', { style: { display: 'flex', gap: 8, flexShrink: 0 } },
+                  React.createElement('span', { className: `badge badge-${alert.severity}` }, alert.severity.toUpperCase()),
+                  React.createElement('span', { className: 'badge badge-info' }, alert.category.replace(/_/g, ' '))
+                )
+              ),
+              React.createElement('div', { className: 'alert-desc' }, alert.description),
+              alert.recommended_action && React.createElement('div', { className: 'alert-action' },
+                React.createElement('strong', null, '✅ Recommended Action: '),
+                alert.recommended_action
+              )
+            ))
+          )
+      );
+    }
+
+    // ============================================================
+    // ANALYTICS PAGE WITH RECHARTS
+    // ============================================================
+    function AnalyticsPage() {
+      const [analytics, setAnalytics] = useState(null);
+      const [routeAnalytics, setRouteAnalytics] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+      const containerRef = useRef(null);
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const [a, r] = await Promise.all([api.getAnalytics(), api.getRouteAnalytics()]);
+          setAnalytics(a); setRouteAnalytics(r);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+      useEffect(() => { load(); }, []);
+
+      useEffect(() => {
+        if (!analytics || !window.Recharts) return;
+        renderCharts();
+      }, [analytics, routeAnalytics]);
+
+      const renderCharts = () => {
+        if (!analytics || !window.Recharts || !containerRef.current) return;
+        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, Legend, RadarChart, Radar, PolarGrid, PolarAngleAxis } = window.Recharts;
+
+        const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899'];
+        const gridStyle = { stroke: 'var(--border)', strokeDasharray: '3 3' };
+        const axisStyle = { fill: 'var(--text-muted)', fontSize: 11 };
+        const tooltipStyle = { background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--text-primary)', fontSize: 12 };
+
+        // Chart 1: Accessibility by State
+        const accData = analytics.states.map(s => ({ name: s.state.substring(0, 8), score: s.accessibility_score }));
+        ReactDOM.render(
+          React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(BarChart, { data: accData, margin: { top: 5, right: 20, bottom: 5, left: 0 } },
+              React.createElement(CartesianGrid, gridStyle),
+              React.createElement(XAxis, { dataKey: 'name', tick: axisStyle }),
+              React.createElement(YAxis, { domain: [0, 100], tick: axisStyle }),
+              React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+              React.createElement(Bar, { dataKey: 'score', fill: '#3b82f6', name: 'Accessibility %', radius: [4, 4, 0, 0] })
+            )
+          ), document.getElementById('chart-accessibility')
+        );
+
+        // Chart 2: Delivery Time
+        const timeData = analytics.states.map(s => ({ name: s.state.substring(0, 8), hours: s.avg_delivery_time_hours }));
+        ReactDOM.render(
+          React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(BarChart, { data: timeData, margin: { top: 5, right: 20, bottom: 5, left: 0 } },
+              React.createElement(CartesianGrid, gridStyle),
+              React.createElement(XAxis, { dataKey: 'name', tick: axisStyle }),
+              React.createElement(YAxis, { tick: axisStyle }),
+              React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+              React.createElement(Bar, { dataKey: 'hours', fill: '#10b981', name: 'Avg Hours', radius: [4, 4, 0, 0] })
+            )
+          ), document.getElementById('chart-delivery-time')
+        );
+
+        // Chart 3: Risk Distribution (Pie)
+        const riskData = Object.entries(analytics.risk_distribution).map(([k, v]) => ({ name: k, value: v }));
+        const riskColors = { low: '#10b981', medium: '#f59e0b', high: '#ef4444' };
+        ReactDOM.render(
+          React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(PieChart, null,
+              React.createElement(Pie, { data: riskData, cx: '50%', cy: '50%', outerRadius: 80, dataKey: 'value', nameKey: 'name', label: ({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%` },
+                riskData.map((entry, i) => React.createElement(Cell, { key: i, fill: riskColors[entry.name] || COLORS[i] }))
+              ),
+              React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+              React.createElement(Legend, { wrapperStyle: { fontSize: 11, color: 'var(--text-secondary)' } })
+            )
+          ), document.getElementById('chart-risk-dist')
+        );
+
+        // Chart 4: Monthly Disruptions (Line)
+        const monthlyData = analytics.monthly_disruptions;
+        ReactDOM.render(
+          React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(LineChart, { data: monthlyData, margin: { top: 5, right: 20, bottom: 5, left: 0 } },
+              React.createElement(CartesianGrid, gridStyle),
+              React.createElement(XAxis, { dataKey: 'month', tick: axisStyle }),
+              React.createElement(YAxis, { tick: axisStyle }),
+              React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+              React.createElement(Legend, { wrapperStyle: { fontSize: 11 } }),
+              React.createElement(Line, { type: 'monotone', dataKey: 'disruptions', stroke: '#ef4444', strokeWidth: 2, dot: { fill: '#ef4444' }, name: 'Disruptions' }),
+              React.createElement(Line, { type: 'monotone', dataKey: 'alerts', stroke: '#f59e0b', strokeWidth: 2, dot: { fill: '#f59e0b' }, name: 'Alerts' })
+            )
+          ), document.getElementById('chart-monthly')
+        );
+
+        // Chart 5: Transport Mode (Pie)
+        if (routeAnalytics) {
+          const modeData = Object.entries(routeAnalytics.by_mode).filter(([, v]) => v > 0).map(([k, v]) => ({ name: k, value: v }));
+          ReactDOM.render(
+            React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+              React.createElement(PieChart, null,
+                React.createElement(Pie, { data: modeData, cx: '50%', cy: '50%', outerRadius: 80, dataKey: 'value', nameKey: 'name', label: ({ name, value }) => `${name} (${value})` },
+                  modeData.map((entry, i) => React.createElement(Cell, { key: i, fill: COLORS[i] }))
+                ),
+                React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+                React.createElement(Legend, { wrapperStyle: { fontSize: 11, color: 'var(--text-secondary)' } })
+              )
+            ), document.getElementById('chart-transport-mode')
+          );
+        }
+
+        // Chart 6: Hub Connectivity
+        const hubConnData = analytics.states.map(s => ({
+          name: s.state.substring(0, 6),
+          hubs: s.hub_count,
+          routes: s.route_count
+        }));
+        ReactDOM.render(
+          React.createElement(ResponsiveContainer, { width: '100%', height: '100%' },
+            React.createElement(BarChart, { data: hubConnData, margin: { top: 5, right: 20, bottom: 5, left: 0 } },
+              React.createElement(CartesianGrid, gridStyle),
+              React.createElement(XAxis, { dataKey: 'name', tick: axisStyle }),
+              React.createElement(YAxis, { tick: axisStyle }),
+              React.createElement(Tooltip, { contentStyle: tooltipStyle }),
+              React.createElement(Legend, { wrapperStyle: { fontSize: 11 } }),
+              React.createElement(Bar, { dataKey: 'hubs', fill: '#8b5cf6', name: 'Hubs', radius: [4, 4, 0, 0] }),
+              React.createElement(Bar, { dataKey: 'routes', fill: '#06b6d4', name: 'Routes', radius: [4, 4, 0, 0] })
+            )
+          ), document.getElementById('chart-hubs')
+        );
+      };
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const charts = [
+        { id: 'chart-accessibility', title: '📡 Accessibility by State' },
+        { id: 'chart-delivery-time', title: '⏱ Avg Delivery Time (hours)' },
+        { id: 'chart-risk-dist', title: '⚠ Route Risk Distribution' },
+        { id: 'chart-monthly', title: '📈 Monthly Disruption Trend' },
+        { id: 'chart-transport-mode', title: '🚛 Transport Mode Distribution' },
+        { id: 'chart-hubs', title: '🏭 Hub & Route Count by State' },
+      ];
+
+      return React.createElement('div', { className: 'page-content', ref: containerRef },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '📊 Analytics Dashboard'),
+          React.createElement('div', { className: 'page-subtitle' }, `${analytics.total_routes} routes • ${analytics.total_hubs} hubs • ${analytics.active_alerts} alerts — Data from backend API`)
+        ),
+        React.createElement('div', { style: { display: 'flex', gap: 12, marginBottom: 20 } },
+          [
+            { label: 'Avg Accessibility', value: `${analytics.avg_accessibility}%`, color: 'var(--accent-green)' },
+            { label: 'Total Routes', value: analytics.total_routes, color: 'var(--accent-blue)' },
+            { label: 'Active Alerts', value: analytics.active_alerts, color: 'var(--accent-red)' },
+            { label: 'Logistics Hubs', value: analytics.total_hubs, color: 'var(--accent-yellow)' },
+          ].map((kpi, i) => React.createElement('div', { key: i, className: 'card', style: { flex: 1, textAlign: 'center' } },
+            React.createElement('div', { style: { fontSize: 28, fontWeight: 800, color: kpi.color } }, kpi.value),
+            React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } }, kpi.label)
+          ))
+        ),
+        React.createElement('div', { className: 'analytics-grid' },
+          charts.map(c => React.createElement('div', { key: c.id, className: 'chart-card' },
+            React.createElement('div', { className: 'chart-title' }, c.title),
+            React.createElement('div', { className: 'chart-area' },
+              React.createElement('div', { id: c.id, style: { width: '100%', height: '100%' } })
+            )
+          ))
+        )
+      );
+    }
+
+    // ============================================================
+    // AI INSIGHTS PAGE
+    // ============================================================
+    function InsightsPage() {
+      const [insights, setInsights] = useState([]);
+      const [meta, setMeta] = useState(null);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+
+      const load = async () => {
+        setLoading(true); setError('');
+        try {
+          const res = await api.getInsights();
+          setInsights(res.insights); setMeta(res);
+        } catch (e) { setError(e.message); }
+        finally { setLoading(false); }
+      };
+      useEffect(() => { load(); }, []);
+
+      if (loading) return React.createElement(Spinner);
+      if (error) return React.createElement(ErrorState, { message: error, onRetry: load });
+
+      const getCatIcon = (cat) => ({ accessibility: '📡', risk: '⚠', transport: '🚛', infrastructure: '🏭', disruption: '🚨', weather: '🌧', recommendation: '💡' }[cat] || '🤖');
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '🤖 AI Insights Engine'),
+          React.createElement('div', { className: 'page-subtitle' }, `${insights.length} insights generated • Data-driven analytics • ${meta?.data_source}`)
+        ),
+        React.createElement('div', { style: { background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, fontSize: 13, color: 'var(--text-secondary)' } },
+          '🤖 These insights are generated deterministically from actual backend data — routes, hubs, states, and alerts. No LLM API required. Connect ',
+          React.createElement('code', { style: { background: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: 4 } }, 'OPENAI_API_KEY'),
+          ' environment variable to enable GPT-powered insights.'
+        ),
+        React.createElement('div', { className: 'insights-grid' },
+          insights.map((insight, i) => React.createElement('div', { key: insight.id, className: `insight-card severity-${insight.severity}`, id: `insight-${i}` },
+            React.createElement('div', { className: 'insight-meta' },
+              React.createElement('span', { className: `badge badge-${insight.severity === 'critical' ? 'critical' : insight.severity === 'warning' ? 'high' : 'info'}` }, insight.severity.toUpperCase()),
+              React.createElement('span', { style: { fontSize: 11, color: 'var(--text-muted)' } }, getCatIcon(insight.category) + ' ' + insight.category.toUpperCase())
+            ),
+            React.createElement('div', { className: 'insight-title', style: { marginTop: 10 } }, insight.title),
+            React.createElement('div', { className: 'insight-text' }, insight.description),
+            insight.affected_states && insight.affected_states.length > 0 && React.createElement('div', { style: { marginTop: 12, display: 'flex', gap: 6, flexWrap: 'wrap' } },
+              insight.affected_states.map((s, j) => React.createElement('span', { key: j, style: { background: 'var(--bg-secondary)', borderRadius: 12, padding: '2px 10px', fontSize: 11, color: 'var(--text-secondary)' } }, s))
+            )
+          ))
+        )
+      );
+    }
+
+    // ============================================================
+    // SETTINGS PAGE
+    // ============================================================
+    function SettingsPage() {
+      const { user, setUser } = useAuth();
+      const [activeTab, setActiveTab] = useState('profile');
+      const [form, setForm] = useState({ full_name: user?.full_name || '', default_transport_mode: user?.default_transport_mode || 'road', default_priority: user?.default_priority || 'balanced', theme: user?.theme || 'dark', notifications_enabled: user?.notifications_enabled ?? true });
+      const [saving, setSaving] = useState(false);
+      const [saved, setSaved] = useState(false);
+
+      const handleSave = async () => {
+        setSaving(true); setSaved(false);
+        try {
+          const updated = await api.updateMe(form);
+          setUser(updated); setSaved(true);
+          setTimeout(() => setSaved(false), 2000);
+        } catch (e) { alert('Failed to save: ' + e.message); }
+        finally { setSaving(false); }
+      };
+
+      const tabs = ['profile', 'preferences', 'notifications', 'system'];
+
+      const ToggleSwitch = ({ value, onChange }) => React.createElement('div', {
+        className: `toggle ${value ? 'on' : ''}`,
+        onClick: () => onChange(!value)
+      });
+
+      return React.createElement('div', { className: 'page-content' },
+        React.createElement('div', { className: 'page-header' },
+          React.createElement('div', { className: 'page-title' }, '⚙ Settings'),
+          React.createElement('div', { className: 'page-subtitle' }, 'Platform preferences and user configuration')
+        ),
+        React.createElement('div', { className: 'settings-grid' },
+          React.createElement('div', null,
+            React.createElement('div', { className: 'card', style: { padding: '8px' } },
+              tabs.map(tab => React.createElement('div', {
+                key: tab, className: `settings-nav-item ${activeTab === tab ? 'active' : ''}`,
+                onClick: () => setActiveTab(tab)
+              }, tab.charAt(0).toUpperCase() + tab.slice(1)))
+            )
+          ),
+          React.createElement('div', null,
+            activeTab === 'profile' && React.createElement('div', { className: 'settings-section' },
+              React.createElement('h3', null, 'Profile Information'),
+              React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
+                React.createElement('div', { className: 'form-group' },
+                  React.createElement('label', null, 'Full Name'),
+                  React.createElement('input', { type: 'text', value: form.full_name, onChange: e => setForm({ ...form, full_name: e.target.value }) })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                  React.createElement('label', null, 'Email Address'),
+                  React.createElement('input', { type: 'email', value: user?.email || '', disabled: true, style: { opacity: 0.6 } })
+                ),
+                React.createElement('div', { className: 'form-group' },
+                  React.createElement('label', null, 'Role'),
+                  React.createElement('input', { type: 'text', value: user?.role || '', disabled: true, style: { opacity: 0.6 } })
+                ),
+              )
+            ),
+            activeTab === 'preferences' && React.createElement('div', { className: 'settings-section' },
+              React.createElement('h3', null, 'Route & Display Preferences'),
+              React.createElement('div', { className: 'settings-row' },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, 'Default Transport Mode'),
+                  React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)', marginTop: 2 } }, 'Pre-selected mode when planning routes')
+                ),
+                React.createElement('select', { value: form.default_transport_mode, onChange: e => setForm({ ...form, default_transport_mode: e.target.value }), style: { width: 140 } },
+                  React.createElement('option', { value: 'road' }, 'Road'),
+                  React.createElement('option', { value: 'rail' }, 'Rail'),
+                  React.createElement('option', { value: 'air' }, 'Air'),
+                  React.createElement('option', { value: 'multimodal' }, 'Multimodal'),
+                )
+              ),
+              React.createElement('div', { className: 'settings-row' },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, 'Default Route Priority'),
+                  React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)', marginTop: 2 } }, 'Default optimization priority')
+                ),
+                React.createElement('select', { value: form.default_priority, onChange: e => setForm({ ...form, default_priority: e.target.value }), style: { width: 160 } },
+                  React.createElement('option', { value: 'balanced' }, 'Balanced'),
+                  React.createElement('option', { value: 'fastest' }, 'Fastest'),
+                  React.createElement('option', { value: 'cheapest' }, 'Cheapest'),
+                  React.createElement('option', { value: 'safest' }, 'Safest'),
+                  React.createElement('option', { value: 'most_accessible' }, 'Most Accessible'),
+                )
+              ),
+              React.createElement('div', { className: 'settings-row' },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, 'Theme'),
+                  React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)', marginTop: 2 } }, 'Interface color scheme')
+                ),
+                React.createElement('select', { value: form.theme, onChange: e => setForm({ ...form, theme: e.target.value }), style: { width: 140 } },
+                  React.createElement('option', { value: 'dark' }, 'Dark (Default)'),
+                  React.createElement('option', { value: 'light' }, 'Light'),
+                )
+              )
+            ),
+            activeTab === 'notifications' && React.createElement('div', { className: 'settings-section' },
+              React.createElement('h3', null, 'Notification Preferences'),
+              React.createElement('div', { className: 'settings-row' },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, 'Enable Notifications'),
+                  React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)' } }, 'Receive alerts for critical disruptions')
+                ),
+                React.createElement(ToggleSwitch, { value: form.notifications_enabled, onChange: v => setForm({ ...form, notifications_enabled: v }) })
+              ),
+              ['Critical Alerts', 'Route Disruptions', 'Hub Status Changes', 'Weekly Reports'].map((label, i) => React.createElement('div', { key: i, className: 'settings-row' },
+                React.createElement('div', null,
+                  React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, label),
+                  React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)' } }, 'Email + in-app')
+                ),
+                React.createElement(ToggleSwitch, { value: form.notifications_enabled && i < 3, onChange: () => { } })
+              ))
+            ),
+            activeTab === 'system' && React.createElement('div', { className: 'settings-section' },
+              React.createElement('h3', null, 'System Information'),
+              [
+                { label: 'Platform Version', value: '1.0.0' },
+                { label: 'API Status', value: '🟢 Online' },
+                { label: 'Data Source', value: 'Demo (Simulated NER Data)' },
+                { label: 'Backend', value: 'FastAPI + SQLite' },
+                { label: 'Map Provider', value: 'Leaflet + OpenStreetMap' },
+                { label: 'AI Engine', value: 'Deterministic Weighted Scoring' },
+              ].map((row, i) => React.createElement('div', { key: i, className: 'settings-row' },
+                React.createElement('div', { style: { fontWeight: 600, fontSize: 14 } }, row.label),
+                React.createElement('div', { style: { fontSize: 13, color: 'var(--text-secondary)' } }, row.value)
+              ))
+            ),
+            React.createElement('div', { style: { marginTop: 20, display: 'flex', gap: 12 } },
+              React.createElement('button', { className: 'btn btn-primary', onClick: handleSave, disabled: saving, id: 'save-settings-btn' },
+                saving ? 'Saving...' : saved ? '✓ Saved!' : 'Save Changes'
+              ),
+              React.createElement('button', { className: 'btn btn-secondary', onClick: () => { setForm({ full_name: user?.full_name || '', default_transport_mode: user?.default_transport_mode || 'road', default_priority: user?.default_priority || 'balanced', theme: user?.theme || 'dark', notifications_enabled: user?.notifications_enabled ?? true }); } }, 'Reset')
+            )
+          )
+        )
+      );
+    }
+
+    // ============================================================
+    // DASHBOARD SHELL
+    // ============================================================
+    function DashboardShell({ children, page }) {
+      return React.createElement('div', { className: 'dashboard-layout' },
+        React.createElement(Sidebar),
+        React.createElement('div', { className: 'main-content' },
+          React.createElement(TopBar),
+          children
+        )
+      );
+    }
+
+    // ============================================================
+    // MAIN APP ROUTER
+    // ============================================================
+    function App() {
+      const { page, navigate } = useNav();
+      const { user, loading } = useAuth();
+
+      // Auto-login check
+      useEffect(() => {
+        if (!loading && !user && !['landing', 'login', 'register'].includes(page)) {
+          navigate('login');
+        }
+      }, [user, loading, page]);
+
+      if (loading) return React.createElement('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' } },
+        React.createElement('div', { className: 'spinner' })
+      );
+
+      const protectedPages = { dashboard: DashboardPage, routes: RoutesPage, accessibility: AccessibilityPage, hubs: HubsPage, alerts: AlertsPage, analytics: AnalyticsPage, insights: InsightsPage, settings: SettingsPage };
+
+      if (page === 'landing') return React.createElement(LandingPage);
+      if (page === 'login') return React.createElement(LoginPage);
+      if (page === 'register') return React.createElement(RegisterPage);
+
+      if (!user) { navigate('login'); return null; }
+
+      const PageComponent = protectedPages[page] || DashboardPage;
+      return React.createElement(DashboardShell, { page },
+        React.createElement(PageComponent)
+      );
+    }
+
+    // ============================================================
+    // ROOT RENDER
+    // ============================================================
+    function Root() {
+      return React.createElement(NavProvider, null,
+        React.createElement(AuthProvider, null,
+          React.createElement(App)
+        )
+      );
+    }
+
+    // Remove loading spinner and mount app
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('init-loading').style.display = 'none';
+      const root = ReactDOM.createRoot(document.getElementById('app'));
+      root.render(React.createElement(Root));
+    });
+  </script>
+</body>
+
+</html>
