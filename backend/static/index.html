@@ -1668,7 +1668,7 @@
     // ============================================================
     const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
 
-    const API_BASE = 'http://localhost:8000';
+    const API_BASE = 'https://ner-ai-logistics.onrender.com';
 
     // ============================================================
     // API SERVICE
@@ -2162,7 +2162,7 @@
               <div class="popup-row"><span>Type</span><strong style="color:#f59e0b">Rail Freight Corridor</strong></div>
               <div class="popup-row"><span>Distance</span><strong>${route.distance_km} km</strong></div>
               <div class="popup-row"><span>Travel Time</span><strong>${route.travel_time_hours}h</strong></div>
-              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr/1000).toFixed(1)}K</strong></div>
+              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr / 1000).toFixed(1)}K</strong></div>
               <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
               ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(245,158,11,0.2);border-radius:4px;font-size:11px;color:#f59e0b;font-weight:700;">⭐ AI RECOMMENDED (BULK FREIGHT)</div>' : ''}
             `;
@@ -2255,7 +2255,7 @@
               <div class="popup-row"><span>Type</span><strong>Exact Road Network (Turn-by-Turn)</strong></div>
               <div class="popup-row"><span>Distance</span><strong>${route.distance_km} km</strong></div>
               <div class="popup-row"><span>Travel Time</span><strong>${route.travel_time_hours}h</strong></div>
-              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr/1000).toFixed(1)}K</strong></div>
+              <div class="popup-row"><span>Cost</span><strong>₹${(route.cost_inr / 1000).toFixed(1)}K</strong></div>
               <div class="popup-row"><span>Road Quality</span><strong>${route.road_quality_score}/100</strong></div>
               <div class="popup-row"><span>AI Score</span><strong>${route.overall_score}/100</strong></div>
               ${isRecommended ? '<div style="margin-top:8px;padding:4px 8px;background:rgba(59,130,246,0.2);border-radius:4px;font-size:11px;color:#60a5fa;font-weight:700;">⭐ AI RECOMMENDED ROAD ROUTE</div>' : ''}
